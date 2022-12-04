@@ -18,9 +18,9 @@ Informatics**
 
 ---
 
-### Einsendeaufgabe EA7 : Z-Puffer-Visualisierung
+### Einsendeaufgabe EA8 - Lichter auf Kreisbahn mit Toon Shading
 
-[zur Webseite](https://gvt.ckitte.de/ea7/)
+[zur Webseite](https://gvt.ckitte.de/ea8/)
 
 Im Rahmen der siebten Einsendeaufgabe soll eine Szene mit mindestens drei, sich überschneidenden Grundkörpern erstellt und deren Tiefe visualisiert werden.
 
