@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>EA 7</title>
+
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/layout.css">
+
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+</head>
+
+<body onload="app.start()">
+
+<div id="layout">
+    <div id="caption">
+        <h1></h1>
+        <h4>
+            Im Rahmen der siebten Einsendeaufgabe soll eine Szene mit mindestens drei, sich überschneidenden
+            Grundkörpern erstellt und deren Tiefe visualisiert werden.
+        </h4>
+
+        <p>
+            Innerhalb der Anwendung sind eine Kugel, welche von einem sich drehenden Torus umgeben ist, sowie ein
+            Kegel zu sehen, der sowohl den Torus als auch die Kugel durchsticht. Um das Bild etwas interessanter zu
+            machen, wurde die Grundseite des Kegels auf einer Achse gestreckt. Die Tiefe der Körper wird durch den
+            Helligkeitswert des Grautons visualisiert. Hierbei ist der Ton umso dunkler, je näher ein Körper der
+            Kamera kommt.
+        </p>
+        <p>
+            Durch Bewegen in der Horizontalen oder Vertikalen (Tasten ADWS) sowie mit Drehbewegungen (Pfeiltasten)
+            ändert sich die Grauwerte je nach Ausrichtung. Ein Zoomen hat hingegen hier keine Auswirkung.
+        </p>
+        <p>
+            Bei starker Neigung sieht man zum einen die nicht sichtbaren Rückseiten im innern des Kegels als Netzlinien
+            vor der Kugel. Zum anderen erkennt man die Grenzen der Berechnung. Hier werden keine Farben gesetzt,
+            weshalb die Bereiche schwarz erscheinen. Über die weiter unten sichtbare Checkbox kann die Animation der
+            Szene ein- und ausgeschaltet werden.
+        </p>
+
+        <p>
+            Der gesamte Code kann auf
+            <a href="https://github.com/ChristianKitte/GvtZBufferVisualization" target="_blank">
+                GitHub eingesehen werden
+            </a>.
+
+            Als externe Bibliothek zur Berechnung der Matrizen und Vektoren kommt glMatrix
+            <a href="https://glmatrix.net/" target="_blank">
+                zum Einsatz.
+            </a>
+        </p>
+
+        <p>
+            Folgende Tastenaktionen sind möglich:
+        </p>
+        <ol>
+            <li>Die Kamera kann mit den <em><b>Pfeiltasten</b></em> um die Szene bewegt werden</li>
+            <li>Die <em><b>Tasten w, s, a, d</b></em> bewegen die Kamera nach oben, unten, rechts und links</li>
+            <li>Die <em><b>Tasten z, Z (shift-z)</b></em> zoomen in bzw. aus dem Bild heraus</li>
+            <li>Die <em><b>Tasten n, N (shift-n)</b></em> verringern bzw. vergrößern den Radius beim Kreisen der Kamera
+            </li>
+        </ol>
+    </div>
+
+    <div id="infoBar">
+        <p id="projection_text">Projektionstyp: </p>
+    </div>
+
+    <div id="checkBox">
+        <div>
+            <input type="checkbox" id="animate-scene" name="animate-scene" value="1" checked="checked">
+            <label for="animate-scene">Szene animieren</label>
+        </div>
+    </div>
+
+    <canvas id="canvas" width="1000px" height="1000px"></canvas>
+</div>
+
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
+        crossorigin="anonymous"></script>
+
+<script src="script/modules/mod_shader.js"></script>
+<script src="script/modules/mod_webgl.js"></script>
+<script src="script/configure.js"></script>
+
+<script src="script/extern/gl-matrix.js"></script>
+
+<script src="script/model/mod_cylinder.js"></script>
+<script src="script/model/mod_kegel.js"></script>
+<script src="script/model/mod_sphere.js"></script>
+<script src="script/model/mod_torus.js"></script>
+<script src="script/model/mod_recursive_sphere.js"></script>
+<script src="script/app.js"></script>
+<script src="script/startup.js"></script>
+
+</body>
+</html>
