@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>EA 7</title>
+    <title>EA 8</title>
 
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/layout.css">
@@ -18,8 +18,8 @@
     <div id="caption">
         <h1></h1>
         <h4>
-            Im Rahmen der siebten Einsendeaufgabe soll eine Szene mit mindestens drei, sich überschneidenden
-            Grundkörpern erstellt und deren Tiefe visualisiert werden.
+            Im Rahmen der achten Einsendeaufgabe sollen zwei Lichtquellen unabhängig voneinander auf einer Kreisbahn
+            um die dargestellte Szene kreisen.
         </h4>
 
         <p>
@@ -31,18 +31,16 @@
         </p>
         <p>
             Durch Bewegen in der Horizontalen oder Vertikalen (Tasten ADWS) sowie mit Drehbewegungen (Pfeiltasten)
-            ändert sich die Grauwerte je nach Ausrichtung. Ein Zoomen hat hingegen hier keine Auswirkung.
+            ändert sich die Ausrichtung der dargestellten Szene.
         </p>
         <p>
-            Bei starker Neigung sieht man zum einen die nicht sichtbaren Rückseiten im innern des Kegels als Netzlinien
-            vor der Kugel. Zum anderen erkennt man die Grenzen der Berechnung. Hier werden keine Farben gesetzt,
-            weshalb die Bereiche schwarz erscheinen. Über die weiter unten sichtbare Checkbox kann die Animation der
-            Szene ein- und ausgeschaltet werden.
+            Durch aktivieren der Checkbox oder dem Drücken der Taste l bzw. L wird die Bewegung der Lichtquellen
+            unterbrochen bzw. wieder aktiviert (Toggel).
         </p>
 
         <p>
             Der gesamte Code kann auf
-            <a href="https://github.com/ChristianKitte/GvtZBufferVisualization" target="_blank">
+            <a href="https://github.com/ChristianKitte/GvtLightsWithToonShading" target="_blank">
                 GitHub eingesehen werden
             </a>.
 
@@ -61,6 +59,7 @@
             <li>Die <em><b>Tasten z, Z (shift-z)</b></em> zoomen in bzw. aus dem Bild heraus</li>
             <li>Die <em><b>Tasten n, N (shift-n)</b></em> verringern bzw. vergrößern den Radius beim Kreisen der Kamera
             </li>
+            <li>Die <em><b>Tasten l, L (shift-n)</b></em> startet oder stoppt die Bewegung der Lichter</li>
         </ol>
     </div>
 
@@ -72,6 +71,8 @@
         <div>
             <input type="checkbox" id="animate-scene" name="animate-scene" value="1" checked="checked">
             <label for="animate-scene">Szene animieren</label>
+            <input type="checkbox" id="animate-light" name="animate-light" value="1" checked="checked">
+            <label for="animate-light">Beleuchtung animieren</label>
         </div>
     </div>
 

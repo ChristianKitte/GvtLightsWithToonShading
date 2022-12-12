@@ -48,6 +48,32 @@ var app = (function () {
     };
 
     /**
+     * Definiert die Lichtquellen einer Szene
+     * @type {{light: [{color: number[], isOn: boolean, position: number[]},{color: number[], isOn: boolean, position: number[]}], ambientLight: number[]}}
+     */
+    let beleuchtung = {
+        /**
+         * Umgebungslicht
+         */
+        ambientLight: [0.5, 0.5, 0.5],
+        /**
+         * Punktlichter
+         */
+        light: [
+            {
+                isOn: true,
+                //position: [6., 1., 3.],
+                position: [-6., 0., 3.],
+                color: [1., 1., 1.]
+            }, {
+                isOn: false,
+                //position: [6., 1., 3.],
+                position: [6., 0., 1.],
+                color: [5., 1., 0.]
+            },]
+    };
+
+    /**
      * Handelt die berücksichtigten Tastatureingaben aus und führt die notwendige Änderungen
      * aus
      */
@@ -64,7 +90,7 @@ var app = (function () {
 
         switch (keyName) {
             case "ArrowUp": // ==> nach oben über die Szene
-                            //camera.zAngle += Math.PI / 36;
+                //camera.zAngle += Math.PI / 36;
                 camera.yAngle += deltaRotate;
                 //camera.eye
                 render();
@@ -159,6 +185,7 @@ var app = (function () {
 
     }, false);
 
+
     /**
      * Startet die Initiierung des Moduls
      */
@@ -191,21 +218,24 @@ var app = (function () {
                 [0, 1, 0], Math.PI / 1.0,
                 [150, 2000, 600],
                 true, Math.PI / 500.0,
-                false, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], 0);
+                false, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], 0,
+                phongDefaultMaterial.Red);
             createModel(
                 "modSphere",
                 [0, 0, 0],
                 [1, 1, 0], 30,
                 [500, 500, 500],
                 false, Math.PI / 500.0,
-                false, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], 0);
+                false, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], 0,
+                phongDefaultMaterial.Blue);
             createModel(
                 "modTorus",
                 [0, 0, 0],
                 [0, 1, 0], 0,
                 [500, 500, 500],
                 true, Math.PI / 500.0,
-                false, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], 0);
+                false, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], 0,
+                phongDefaultMaterial.Green);
         }
     }
 
@@ -236,7 +266,8 @@ var app = (function () {
         performOrbit = false,
         orbitCenter = [0.0, 0.0, 0.0],
         orbitRadius = [0.0, 0.0, 0.0],
-        orbitDegree = 0.0) {
+        orbitDegree = 0.0,
+        material = phongDefaultMaterial.Default) {
 
         let model = {};
 
@@ -253,7 +284,8 @@ var app = (function () {
             performOrbit,
             orbitCenter,
             orbitRadius,
-            orbitDegree);
+            orbitDegree,
+            material);
 
         models.push(model);
     }
@@ -296,9 +328,8 @@ var app = (function () {
     }
 
     /**
-     * Fügt dem übergebenen Modell Eigenschaften für seine Positionierung, Skalierung und Animation hinzu. Zudem werden
-     * Eigenschaften für die interne Verwendung hinzugefügt
-     * Scale Matrix hinzufügen
+     * Fügt dem übergebenen Modell Eigenschaften für seine Positionierung, Skalierung, Animation und Material hinzu.
+     * Zudem werden Eigenschaften für die interne Verwendung hinzugefügt.
      * @param model Eine Instanz des Modells
      * @param translate Die initiale Translation des Modells. Geht von Mittelpunkt zu Mittelpunkt der Bewegung aus
      * @param rotate Die Achsen, um die rotiert werden soll (einmalig oder bei turning = true).
@@ -322,7 +353,8 @@ var app = (function () {
         performOrbit = false,
         orbitCenter = [0.0, 0.0, 0.0],
         orbitRadius = [0.0, 0.0, 0.0],
-        orbitDegree = 0.0) {
+        orbitDegree = 0.0,
+        material = phongDefaultMaterial.Default) {
 
         // Positionierung des Modells
         model.translate = translate;
@@ -351,6 +383,8 @@ var app = (function () {
         model.modelMatrix = glMatrix.mat4.create();
         model.viewMatrix = glMatrix.mat4.create();
         model.scaleMatrix = glMatrix.mat4.create();
+
+        model.material = material;
     }
 
     /**
@@ -367,11 +401,44 @@ var app = (function () {
         // konfiguriert und setzt die globale Viewmatrix der Kamera (View Matrix)
         setCameraViewMatrix();
 
+        // konfiguriert und setzt die globale Beleuchtugn für die Szene
+        WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.ambientLightUniform, beleuchtung.ambientLight);
+
+        // Loop over light sources.
+        for (var j = 0; j < beleuchtung.light.length; j++) {
+            // bool is transferred as integer.
+            WebGlInstance.webGL.gl.uniform1i(WebGlInstance.webGL.program.lightUniform[j].isOn,
+                beleuchtung.light[j].isOn);
+
+            // Tranform light postion in eye coordinates.
+            // Copy current light position into a new array.
+            var lightPos = [].concat(beleuchtung.light[j].position);
+
+            // Add homogenious coordinate for transformation.
+            lightPos.push(1.0);
+            glMatrix.vec4.transformMat4(lightPos, lightPos, camera.vMatrix);
+
+            // Remove homogenious coordinate.
+            lightPos.pop();
+            WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.lightUniform[j].position, lightPos);
+            WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.lightUniform[j].color,
+                beleuchtung.light[j].color);
+        }
+
         // Alle model durchlaufen, Eigenschaften für Rotation, Scale und Translation für das
         // jeweils aktuelle Modell aktualisieren und das Modell ausgeben
         for (var i = 0; i < models.length; i++) {
             // Erstellt und setzt die Model Matrix für das aktuelle Modell nach den aktuell eingestellten Werten
             setModelTransformationForModel(models[i]);
+
+            // Setzt das für das Modell gültige Material
+            /*
+            WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.materialKaUniform, models[i].material.ka);
+            WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.materialKdUniform, models[i].material.kd);
+            WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.materialKsUniform, models[i].material.ks);
+            WebGlInstance.webGL.gl.uniform1f(WebGlInstance.webGL.program.materialKeUniform, models[i].material.ke);
+            */
+
             // Ausgabe des Modells
             drawModel(models[i]);
         }

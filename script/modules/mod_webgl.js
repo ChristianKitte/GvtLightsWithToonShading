@@ -39,15 +39,37 @@ var WebGlInstance = (function () {
      * Konfiguriert den Zugriff auf die verwendeten Uniform Variablen
      */
     function initUniforms() {
-        // Projection Matrix.
-        //webGL.program.pMatrixUniform = webGL.gl.getUniformLocation(webGL.program, "uPMatrix");
-
-        // Model-View-Matrix.
-        //webGL.program.mvMatrixUniform = webGL.gl.getUniformLocation(webGL.program, "uMVMatrix");
-
+        // Zugriff auf uniform uModel
         webGL.program.modelMatrix = webGL.gl.getUniformLocation(webGL.program, "uModel");
+
+        // Zugriff auf uniform uView
         webGL.program.viewMatrix = webGL.gl.getUniformLocation(webGL.program, "uView");
+
+        // Zugriff auf uniform uProjection
         webGL.program.projectionMatrix = webGL.gl.getUniformLocation(webGL.program, "uProjection");
+
+        // Zugriff auf uniform Umgebungslicht ambientLight
+        webGL.program.ambientLightUniform = webGL.gl.getUniformLocation(webGL.program, "ambientLight");
+
+        // Array für Zugriff auf  Lichtquellen
+        webGL.program.lightUniform = [];
+
+        // Array für Zugriff auf max. 10 Lichtquellen mit je einer uniform struct light
+        for (var j = 0; j < 10; j++) {
+            var lightNb = "light[" + j + "]";
+            // Store one object for every light source.
+            var l = {};
+            l.isOn = webGL.gl.getUniformLocation(webGL.program, lightNb + ".isOn");
+            l.position = webGL.gl.getUniformLocation(webGL.program, lightNb + ".position");
+            l.color = webGL.gl.getUniformLocation(webGL.program, lightNb + ".color");
+            webGL.program.lightUniform[j] = l;
+        }
+
+        // Zugriff auf die eizelnen felder der uniform struct material
+        webGL.program.materialKaUniform = webGL.gl.getUniformLocation(webGL.program, "material.ka");
+        webGL.program.materialKdUniform = webGL.gl.getUniformLocation(webGL.program, "material.kd");
+        webGL.program.materialKsUniform = webGL.gl.getUniformLocation(webGL.program, "material.ks");
+        webGL.program.materialKeUniform = webGL.gl.getUniformLocation(webGL.program, "material.ke");
     }
 
     /**
@@ -96,8 +118,8 @@ var WebGlInstance = (function () {
             console.log(webGL.gl.getShaderInfoLog(fragmentShader));
         }
 
-        //const src = webGL.gl.getExtension('WEBGL_debug_shaders').getTranslatedShaderSource(fsShader);
-        //console.log(src);
+        const src = webGL.gl.getExtension('WEBGL_debug_shaders').getTranslatedShaderSource(vsShader);
+        console.log(src);
 
         webGL.gl.frontFace(webGL.gl.CCW);
         webGL.gl.enable(webGL.gl.CULL_FACE);
