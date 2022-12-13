@@ -185,7 +185,6 @@ var app = (function () {
 
     }, false);
 
-
     /**
      * Startet die Initiierung des Moduls
      */
@@ -401,6 +400,7 @@ var app = (function () {
         // konfiguriert und setzt die globale Viewmatrix der Kamera (View Matrix)
         setCameraViewMatrix();
 
+        /*
         // konfiguriert und setzt die globale Beleuchtugn für die Szene
         WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.ambientLightUniform, beleuchtung.ambientLight);
 
@@ -424,6 +424,7 @@ var app = (function () {
             WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.lightUniform[j].color,
                 beleuchtung.light[j].color);
         }
+        */
 
         // Alle model durchlaufen, Eigenschaften für Rotation, Scale und Translation für das
         // jeweils aktuelle Modell aktualisieren und das Modell ausgeben
