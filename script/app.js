@@ -382,6 +382,7 @@ var app = (function () {
         model.modelMatrix = glMatrix.mat4.create();
         model.viewMatrix = glMatrix.mat4.create();
         model.scaleMatrix = glMatrix.mat4.create();
+        model.normalMatrix = glMatrix.mat3.create();
 
         model.material = material;
     }
@@ -494,6 +495,7 @@ var app = (function () {
      */
     function setModelTransformationForModel(model) {
         let mMatrix = model.modelMatrix;
+        let vMatrix = camera.vMatrix;
         glMatrix.mat4.identity(mMatrix);
 
         // Scale
@@ -528,6 +530,11 @@ var app = (function () {
             glMatrix.mat4.translate(mMatrix, mMatrix, model.translate);
         }
 
+        // Calculate normal matrix from model matrix.
+        let mvMatrix = glMatrix.mat4.create();
+        glMatrix.mat4.multiply(mvMatrix, vMatrix, mMatrix);
+        glMatrix.mat3.normalFromMat4(model.normalMatrix, mvMatrix);
+
         WebGlInstance.webGL.gl.uniformMatrix4fv(WebGlInstance.webGL.program.modelMatrix, false, mMatrix);
     }
 
@@ -536,10 +543,15 @@ var app = (function () {
      * @param model Das Model
      */
     function drawModel(model) {
-        WebGlInstance.webGL.gl.enableVertexAttribArray(aColor);
+        // Normale verfügbar machen
+        WebGlInstance.webGL.gl.enableVertexAttribArray(aNormal);
+        WebGlInstance.webGL.gl.bufferData(WebGlInstance.webGL.gl.ARRAY_BUFFER, new Float32Array(model.normalMatrix), WebGlInstance.webGL.gl.STATIC_DRAW);
+        WebGlInstance.webGL.gl.disableVertexAttribArray(aNormal);
 
         // Knotendaten verfügbar machen und binden
+        WebGlInstance.webGL.gl.enableVertexAttribArray(aColor);
         WebGlInstance.webGL.gl.bufferData(WebGlInstance.webGL.gl.ARRAY_BUFFER, new Float32Array(model.vertices), WebGlInstance.webGL.gl.STATIC_DRAW);
+
         // Indexarray für die Linien binden und ausgeben
         WebGlInstance.webGL.gl.bufferData(WebGlInstance.webGL.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.verticesIndexTriangle), WebGlInstance.webGL.gl.STATIC_DRAW);
 

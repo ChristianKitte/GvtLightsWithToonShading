@@ -39,8 +39,6 @@ const vertexShader = `#version 300 es
         float ke;
     };
     uniform PhongMaterial material;
-
-
     
     // Phong illumination for single light source, no ambient light.
     vec3 phong(vec3 p, vec3 n, vec3 v, LightSource l) {
@@ -78,15 +76,16 @@ const vertexShader = `#version 300 es
     {       
         vBrightness = max(dot(lightDirection, aNormal),0.0);
         vColor = aColor;
+        vNormal=aNormal;
         
         gl_Position=uProjection * uView * uModel * vec4(aPosition, 100.0);
         gl_PointSize=1.0;  
         
-    //vec3 tNormal = normalize(uNMatrix * aNormal);
-
-    // Calculate view vector.
-    //vec3 v = normalize(-gl_Position.xyz);
-    //vColorx = vec4( phong(gl_Position.xyz, tNormal, v), 1.0);     
+        //vec3 tNormal = normalize(uNMatrix * aNormal);
+    
+        // Calculate view vector.
+        //vec3 v = normalize(-gl_Position.xyz);
+        //vColorx = vec4( phong(gl_Position.xyz, tNormal, v), 1.0);     
     }
     
     `;

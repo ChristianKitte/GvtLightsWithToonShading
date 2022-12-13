@@ -78,7 +78,7 @@ var modCylinder = (function () {
                     farbwert = 0;
                 }
 
-                vertices.push(1.0, 1.0, 1.0); // Normale
+                vertices.push(0.0, 1.0, 0.0); // Normale
 
                 // Definiert die Linien für das Gitternetz
                 if (i > 0 && j > 0) {
