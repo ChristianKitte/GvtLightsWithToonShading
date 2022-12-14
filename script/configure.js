@@ -22,7 +22,7 @@ var projektionsText = document.getElementById("projection_text");
 projektionsText.innerText = "Projektionstyp: Orthogonal";
 
 /**
- * Definiert einige default Phong-Materiale
+ * Definiert einige default Phong-Materialien
  * @type {{}} Ein PhongMaterial
  */
 var phongDefaultMaterial = {};
@@ -31,13 +31,14 @@ phongDefaultMaterial.Red = createPhongMaterial({kd: [1., 0., 0.]});
 phongDefaultMaterial.Green = createPhongMaterial({kd: [0., 1., 0.]});
 phongDefaultMaterial.Blue = createPhongMaterial({kd: [0., 0., 1.]});
 phongDefaultMaterial.White = createPhongMaterial({
-    ka: [1., 1., 1.], kd: [.5, .5, .5],
+    ka: [1., 1., 1.],
+    kd: [.5, .5, .5],
     ks: [0., 0., 0.]
 });
 
 /**
  * Erzeugt ein Material zur Verwendung mit der Phong Beleuchtungsberechnung auf Basis
- * von vier Reflexions-Koeffizienten:
+ * von vier Reflexions-Koeffizienten. Diese stellen einen RGB Vektor dar:
  * ka - Ambiente Reflexion (Umgebungslicht)
  * kd - Difuse Reflexion (Konturen)
  * ks - Spekulare Reflexion (Glanzpunkte)
@@ -49,7 +50,7 @@ function createPhongMaterial(material) {
     material = material || {};
     // Set some default values,
     // if not defined in material paramter.
-    material.ka = material.ka || [0.3, 0.3, 0.3];
+    material.ka = material.ka || [0.6, 0.6, 0.6];
     material.kd = material.kd || [0.6, 0.6, 0.6];
     material.ks = material.ks || [0.8, 0.8, 0.8];
     material.ke = material.ke || 10.;

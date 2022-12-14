@@ -10,6 +10,33 @@ var WebGlInstance = (function () {
     let webGL = {};
 
     /**
+     * Definiert die Lichtquellen einer Szene
+     * @type {{light: [{color: number[], isOn: boolean, position: number[]},{color: number[], isOn: boolean, position: number[]}], ambientLight: number[]}}
+     */
+    let beleuchtung = {
+        /**
+         * Umgebungslicht
+         */
+        ambientLight: [0.5, 0.5, 0.5],
+
+        /**
+         * Punktlichter
+         */
+        light: [
+            {
+                isOn: true,
+                position: [6., 1., 3.],
+                //position: [0., 0., 0.],
+                color: [1., 1., 0.]
+            }, {
+                isOn: true,
+                position: [6., 1., 3.],
+                //position: [0., 0., 0.],
+                color: [1., 1., 0.]
+            },]
+    };
+
+    /**
      * Startet die Initialisierung von WebGL
      */
     webGL.create = function () {
@@ -35,6 +62,8 @@ var WebGlInstance = (function () {
         initUniforms();
     }
 
+    var lightUniform = [];
+
     /**
      * Konfiguriert den Zugriff auf die verwendeten Uniform Variablen
      */
@@ -50,6 +79,7 @@ var WebGlInstance = (function () {
 
         // Zugriff auf uniform Umgebungslicht ambientLight
         webGL.program.ambientLightUniform = webGL.gl.getUniformLocation(webGL.program, "ambientLight");
+        WebGlInstance.webGL.gl.uniform3fv(webGL.program.ambientLightUniform, beleuchtung.ambientLight);
 
         // Zugriff auf die eizelnen Felder der uniform struct material
         webGL.program.materialKaUniform = webGL.gl.getUniformLocation(webGL.program, "material.ka");
@@ -58,25 +88,48 @@ var WebGlInstance = (function () {
         webGL.program.materialKeUniform = webGL.gl.getUniformLocation(webGL.program, "material.ke");
 
         // Belegen der eizelnen Felder der uniform struct material mit einem Defaultwert
-        webGL.program.materialKaUniform = phongDefaultMaterial.Default.ka;
-        webGL.program.materialKdUniform = phongDefaultMaterial.Default.kd;
-        webGL.program.materialKsUniform = phongDefaultMaterial.Default.ks;
-        webGL.program.materialKeUniform = phongDefaultMaterial.Default.ke;
+        WebGlInstance.webGL.gl.uniform3fv(webGL.program.materialKaUniform, phongDefaultMaterial.Default.ka);
+        WebGlInstance.webGL.gl.uniform3fv(webGL.program.materialKdUniform, phongDefaultMaterial.Default.kd);
+        WebGlInstance.webGL.gl.uniform3fv(webGL.program.materialKsUniform, phongDefaultMaterial.Default.ks);
+        WebGlInstance.webGL.gl.uniform1f(webGL.program.materialKeUniform, phongDefaultMaterial.Default.ke);
 
         // Array für Zugriff auf  Lichtquellen
-        webGL.program.lightUniform = [];
+        //webGL.program.lightUniform = [];
 
         // Array für Zugriff auf max. 10 Lichtquellen mit je einer uniform struct light
-        for (var j = 0; j < 10; j++) {
+        for (var j = 0; j < beleuchtung.light.length; j++) {
             var lightNb = "light[" + j + "]";
             // Store one object for every light source.
+
             var l = {};
             l.isOn = webGL.gl.getUniformLocation(webGL.program, lightNb + ".isOn");
             l.position = webGL.gl.getUniformLocation(webGL.program, lightNb + ".position");
             l.color = webGL.gl.getUniformLocation(webGL.program, lightNb + ".color");
-            webGL.program.lightUniform[j] = l;
+
+            lightUniform[j] = l;
         }
 
+        /*
+        for (var j = 0; j < beleuchtung.light.length; j++) {
+            if (beleuchtung.light[j].isOn) {
+                // bool is transferred as integer.
+                WebGlInstance.webGL.gl.uniform1i(webGL.program.lightUniform[j].isOn, beleuchtung.light[j].isOn);
+
+                // Tranform light postion in eye coordinates.
+                // Copy current light position into a new array.
+                let lightPos = [].concat(beleuchtung.light[j].position);
+
+                // Add homogenious coordinate for transformation.
+                //lightPos.push(1.0);
+                //vec4.transformMat4(lightPos, lightPos, camera.vMatrix);
+
+                // Remove homogenious coordinate.
+                //lightPos.pop();
+                //WebGlInstance.webGL.uniform3fv(webGL.program.lightUniform[j].position, lightPos);
+                WebGlInstance.webGL.gl.uniform3fv(webGL.program.lightUniform[j].position, beleuchtung.light[j].position);
+                WebGlInstance.webGL.gl.uniform3fv(webGL.program.lightUniform[j].color, beleuchtung.light[j].color);
+            }
+        }*/
     }
 
     /**
@@ -120,11 +173,10 @@ var WebGlInstance = (function () {
 
         webGL.gl.linkProgram(webGL.program);
 
-        /*
         if (!webGL.gl.getProgramParameter(webGL.program, webGL.gl.LINK_STATUS)) {
             console.log(webGL.gl.getShaderInfoLog(vertexShader));
             console.log(webGL.gl.getShaderInfoLog(fragmentShader));
-        }*/
+        }
 
         //const src = webGL.gl.getExtension('WEBGL_debug_shaders').getTranslatedShaderSource(vsShader);
         //console.log(src);
@@ -148,7 +200,9 @@ var WebGlInstance = (function () {
      * Legt das WebGL Objekt offen
      */
     return {
-        webGL: webGL
+        webGL: webGL,
+        sceneLight: beleuchtung,
+        sceneLightUniform: lightUniform
     }
 }());
 

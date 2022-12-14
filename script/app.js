@@ -48,32 +48,6 @@ var app = (function () {
     };
 
     /**
-     * Definiert die Lichtquellen einer Szene
-     * @type {{light: [{color: number[], isOn: boolean, position: number[]},{color: number[], isOn: boolean, position: number[]}], ambientLight: number[]}}
-     */
-    let beleuchtung = {
-        /**
-         * Umgebungslicht
-         */
-        ambientLight: [0.5, 0.5, 0.5],
-        /**
-         * Punktlichter
-         */
-        light: [
-            {
-                isOn: true,
-                //position: [6., 1., 3.],
-                position: [-6., 0., 3.],
-                color: [1., 1., 1.]
-            }, {
-                isOn: false,
-                //position: [6., 1., 3.],
-                position: [6., 0., 1.],
-                color: [5., 1., 0.]
-            },]
-    };
-
-    /**
      * Handelt die berücksichtigten Tastatureingaben aus und führt die notwendige Änderungen
      * aus
      */
@@ -90,7 +64,7 @@ var app = (function () {
 
         switch (keyName) {
             case "ArrowUp": // ==> nach oben über die Szene
-                //camera.zAngle += Math.PI / 36;
+                            //camera.zAngle += Math.PI / 36;
                 camera.yAngle += deltaRotate;
                 //camera.eye
                 render();
@@ -214,7 +188,7 @@ var app = (function () {
             createModel(
                 "modKegel",
                 [0, 0, 0],
-                [0, 1, 0], Math.PI / 1.0,
+                [0, 1, 0], Math.PI,
                 [150, 2000, 600],
                 true, Math.PI / 500.0,
                 false, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], 0,
@@ -253,6 +227,7 @@ var app = (function () {
      * @param orbitCenter Koordinaten des Mittelpunktes für den Orbit (für performOrbit = true)
      * @param orbitRadius Radius des Orbits auf der X, Y, Z Achse, bezogen auf den Mittelpunkt bezogen (für performOrbit = true)
      * @param orbitDegree Angabe der dauernden Bewegung je Schritt im Bogenmaß auf dem Orbit (für performOrbit = true)
+     * @param material Angabe des zu verwendenden Phong-Materials
      */
     function createModel(
         modelName = "",
@@ -340,6 +315,7 @@ var app = (function () {
      * @param orbitCenter Koordinaten des Mittelpunktes für den Orbit (für performOrbit = true)
      * @param orbitRadius Radius des Orbits auf der X, Y, Z Achse, bezogen auf den Mittelpunkt bezogen (für performOrbit = true)
      * @param orbitDegree Angabe der dauernden Bewegung je Schritt im Bogenmaß auf dem Orbit (für performOrbit = true)
+     * @param material Angabe des zu verwendenden Phong-Materials
      */
     function initTransformationsForModel(
         model = {},
@@ -400,32 +376,28 @@ var app = (function () {
 
         // konfiguriert und setzt die globale Viewmatrix der Kamera (View Matrix)
         setCameraViewMatrix();
-
         /*
-        // konfiguriert und setzt die globale Beleuchtugn für die Szene
-        WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.ambientLightUniform, beleuchtung.ambientLight);
+                // Loop over light sources.
+                for (var j = 0; j < beleuchtung.light.length; j++) {
+                    // bool is transferred as integer.
+                    WebGlInstance.webGL.gl.uniform1i(WebGlInstance.webGL.program.lightUniform[j].isOn,
+                        beleuchtung.light[j].isOn);
 
-        // Loop over light sources.
-        for (var j = 0; j < beleuchtung.light.length; j++) {
-            // bool is transferred as integer.
-            WebGlInstance.webGL.gl.uniform1i(WebGlInstance.webGL.program.lightUniform[j].isOn,
-                beleuchtung.light[j].isOn);
+                    // Tranform light postion in eye coordinates.
+                    // Copy current light position into a new array.
+                    var lightPos = [].concat(beleuchtung.light[j].position);
 
-            // Tranform light postion in eye coordinates.
-            // Copy current light position into a new array.
-            var lightPos = [].concat(beleuchtung.light[j].position);
+                    // Add homogenious coordinate for transformation.
+                    lightPos.push(1.0);
+                    glMatrix.vec4.transformMat4(lightPos, lightPos, camera.vMatrix);
 
-            // Add homogenious coordinate for transformation.
-            lightPos.push(1.0);
-            glMatrix.vec4.transformMat4(lightPos, lightPos, camera.vMatrix);
-
-            // Remove homogenious coordinate.
-            lightPos.pop();
-            WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.lightUniform[j].position, lightPos);
-            WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.lightUniform[j].color,
-                beleuchtung.light[j].color);
-        }
-        */
+                    // Remove homogenious coordinate.
+                    lightPos.pop();
+                    WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.lightUniform[j].position, lightPos);
+                    WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.lightUniform[j].color,
+                        beleuchtung.light[j].color);
+                }
+          */
 
         // Alle model durchlaufen, Eigenschaften für Rotation, Scale und Translation für das
         // jeweils aktuelle Modell aktualisieren und das Modell ausgeben
@@ -434,12 +406,10 @@ var app = (function () {
             setModelTransformationForModel(models[i]);
 
             // Setzt das für das Modell gültige Material
-            /*
             WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.materialKaUniform, models[i].material.ka);
             WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.materialKdUniform, models[i].material.kd);
             WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.materialKsUniform, models[i].material.ks);
             WebGlInstance.webGL.gl.uniform1f(WebGlInstance.webGL.program.materialKeUniform, models[i].material.ke);
-            */
 
             // Ausgabe des Modells
             drawModel(models[i]);
@@ -530,10 +500,31 @@ var app = (function () {
             glMatrix.mat4.translate(mMatrix, mMatrix, model.translate);
         }
 
-        // Calculate normal matrix from model matrix.
+        // Calculate normal matrix from ModelViewMmatrix.
         let mvMatrix = glMatrix.mat4.create();
         glMatrix.mat4.multiply(mvMatrix, vMatrix, mMatrix);
         glMatrix.mat3.normalFromMat4(model.normalMatrix, mvMatrix);
+
+        for (var j = 0; j < WebGlInstance.sceneLight.light.length; j++) {
+            if (WebGlInstance.sceneLight.light[j].isOn) {
+                // bool is transferred as integer.
+                WebGlInstance.webGL.gl.uniform1i(WebGlInstance.sceneLightUniform[j].isOn, WebGlInstance.sceneLight.light[j].isOn);
+
+                // Tranform light postion in eye coordinates.
+                // Copy current light position into a new array.
+                let lightPos = [].concat(WebGlInstance.sceneLight.light[j].position);
+
+                // Add homogenious coordinate for transformation.
+                lightPos.push(1.0);
+                glMatrix.vec4.transformMat4(lightPos, lightPos, camera.vMatrix);
+
+                // Remove homogenious coordinate.
+                lightPos.pop();
+                //WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.sceneLightUniform[j].position, lightPos);
+                WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.sceneLightUniform[j].position, WebGlInstance.sceneLight.light[j].position);
+                WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.sceneLightUniform[j].color, WebGlInstance.sceneLight.light[j].color);
+            }
+        }
 
         WebGlInstance.webGL.gl.uniformMatrix4fv(WebGlInstance.webGL.program.modelMatrix, false, mMatrix);
     }

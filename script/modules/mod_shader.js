@@ -17,8 +17,8 @@ const vertexShader = `#version 300 es
     out vec3 vNormal;
     
     vec3 lightDirection = normalize(vec3(3.0, 3.0, 1.0));
-    vec3 normal;
-    
+    //vec3 normal;
+    vec4 vColorx;
     // Ambient light.
     uniform vec3 ambientLight;
     
@@ -55,6 +55,7 @@ const vertexShader = `#version 300 es
         vec3 specular = material.ks * L * pow(rv, material.ke);
     
         return diffuse + specular;
+        //return vec3(1.0,0.,0.);
     }
     
     // Phong illumination for multiple light sources
@@ -69,23 +70,31 @@ const vertexShader = `#version 300 es
             }
         }
     
-        return result;
+        return result;        
     }
 
-        void main()
+    void main()
     {       
         vBrightness = max(dot(lightDirection, aNormal),0.0);
-        vColor = aColor;
-        vNormal=aNormal;
+        vColorx = aColor;
+        //vNormal=aNormal;
         
         gl_Position=uProjection * uView * uModel * vec4(aPosition, 100.0);
         gl_PointSize=1.0;  
         
-        //vec3 tNormal = normalize(uNMatrix * aNormal);
+        //vec3 tNormal = normalize(uView * aNormal);
     
         // Calculate view vector.
         //vec3 v = normalize(-gl_Position.xyz);
-        //vColorx = vec4( phong(gl_Position.xyz, tNormal, v), 1.0);     
+        //vec3 tNormal = normalize(aNormal);
+        //vec3 tPosition = normalize(gl_Position);
+        vec3 v = -normalize(vec3(0.,0.,0.));// -gl_Position.xyz;
+        
+        //vColor = vec4( phong(tPosition, tNormal, v), 1.0);
+        vColor = vec4( phong(gl_Position.xyz, aNormal, v), 1.0);
+        //vColor = vec4( phong(vec3(0.,0.,0.), aNormal, v), 1.0);
+        //LightSource ls=light[0];
+        //vColor=vec4(ls.color,1.0);
     }
     
     `;
@@ -117,7 +126,9 @@ const fragmentShader = `#version 300 es
     void main()
     {          
         float zbuffer = fract(gl_FragCoord.z/0.3);
-        fragColor = vec4(zbuffer,zbuffer,zbuffer, 1.0);
+        //fragColor = vec4(zbuffer,zbuffer,zbuffer, 1.0);
+        //fragColor=vColor*1.0/zbuffer;
+        fragColor=vColor;
     }
        
     `;
