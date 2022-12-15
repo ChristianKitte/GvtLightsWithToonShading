@@ -79,12 +79,11 @@ var modSphere = (function () {
                 }
 
                 // Normalen definieren
-                let vertexLength = Math.sqrt(x * y * z);
-                if (vertexLength === 0) {
-                    vertices.push(0.0, 0.0, 0.0); // Normale
-                } else {
-                    vertices.push(x / vertexLength, z / vertexLength, y / vertexLength); // Normale
-                }
+                let xx = x * scale;
+                let yy = y * scale;
+                let zz = z * scale;
+                let vertexLength = Math.sqrt(xx * xx + yy * yy + zz * zz);
+                vertices.push(xx / vertexLength, yy / vertexLength, zz / vertexLength); // Normale
 
                 // Definiert die Linien für das Gitternetz
                 if (i > 0 && j > 0) {

@@ -32,8 +32,8 @@ phongDefaultMaterial.Green = createPhongMaterial({kd: [0., 1., 0.]});
 phongDefaultMaterial.Blue = createPhongMaterial({kd: [0., 0., 1.]});
 phongDefaultMaterial.White = createPhongMaterial({
     ka: [1., 1., 1.],
-    kd: [.5, .5, .5],
-    ks: [0., 0., 0.]
+    kd: [0., 1., 0.],
+    ks: [1., 0., 0.]
 });
 
 /**

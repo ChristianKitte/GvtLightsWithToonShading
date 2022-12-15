@@ -81,7 +81,11 @@ var modTorus = (function () {
                     farbwert = 0;
                 }
 
-                vertices.push(1.0, 1.0, 1.0); // Normale
+                // Calc and set normals.
+                let nx = Math.cos(u) * Math.cos(v);
+                let ny = Math.cos(u) * Math.sin(v);
+                let nz = Math.sin(u);
+                vertices.push(nx, ny, nz); // Normale
 
                 // Definiert die Linien für das Gitternetz
                 if (i > 0 && j > 0) {

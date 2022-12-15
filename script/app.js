@@ -22,9 +22,11 @@ var app = (function () {
      */
     let camera = {
         // Initial position of the camera.
-        eye: [0, 1, 4],
+        //eye: [0, 1, 4],
+        eye: [0, 0, 0],
         // Point to look at.
-        center: [0.1, -.5, -2],
+        //center: [0.1, -.5, -2],
+        center: [0.0, 0.0, 0.0],
         // Roll and pitch of the camera.
         up: [0, 1, 0],
         // Opening angle given in radian.
@@ -371,39 +373,40 @@ var app = (function () {
         // Löschen der alten Ausgabe
         WebGlInstance.webGL.gl.clear(WebGlInstance.webGL.gl.COLOR_BUFFER_BIT | WebGlInstance.webGL.gl.DEPTH_BUFFER_BIT);
 
+        for (var j = 0; j < WebGlInstance.sceneLight.light.length; j++) {
+            if (WebGlInstance.sceneLight.light[j].isOn) {
+                // bool is transferred as integer.
+                WebGlInstance.webGL.gl.uniform1i(WebGlInstance.sceneLightUniform[j].isOn, WebGlInstance.sceneLight.light[j].isOn);
+
+                // Tranform light postion in eye coordinates.
+                // Copy current light position into a new array.
+                let lightPos = [].concat(WebGlInstance.sceneLight.light[j].position);
+
+                // Add homogenious coordinate for transformation.
+                lightPos.push(1.0);
+                glMatrix.vec4.transformMat4(lightPos, lightPos, camera.vMatrix);
+
+                // Remove homogenious coordinate.
+                lightPos.pop();
+                //WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.sceneLightUniform[j].position, lightPos);
+                WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.sceneLightUniform[j].position, WebGlInstance.sceneLight.light[j].position);
+                WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.sceneLightUniform[j].color, WebGlInstance.sceneLight.light[j].color);
+            }
+        }
+
         // konfiguriert und setzt die globale Projektionsmatrix der Kamera (Projection Matrix)
         setCameraProjectionMatrix();
 
         // konfiguriert und setzt die globale Viewmatrix der Kamera (View Matrix)
         setCameraViewMatrix();
-        /*
-                // Loop over light sources.
-                for (var j = 0; j < beleuchtung.light.length; j++) {
-                    // bool is transferred as integer.
-                    WebGlInstance.webGL.gl.uniform1i(WebGlInstance.webGL.program.lightUniform[j].isOn,
-                        beleuchtung.light[j].isOn);
-
-                    // Tranform light postion in eye coordinates.
-                    // Copy current light position into a new array.
-                    var lightPos = [].concat(beleuchtung.light[j].position);
-
-                    // Add homogenious coordinate for transformation.
-                    lightPos.push(1.0);
-                    glMatrix.vec4.transformMat4(lightPos, lightPos, camera.vMatrix);
-
-                    // Remove homogenious coordinate.
-                    lightPos.pop();
-                    WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.lightUniform[j].position, lightPos);
-                    WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.lightUniform[j].color,
-                        beleuchtung.light[j].color);
-                }
-          */
 
         // Alle model durchlaufen, Eigenschaften für Rotation, Scale und Translation für das
         // jeweils aktuelle Modell aktualisieren und das Modell ausgeben
         for (var i = 0; i < models.length; i++) {
             // Erstellt und setzt die Model Matrix für das aktuelle Modell nach den aktuell eingestellten Werten
             setModelTransformationForModel(models[i]);
+
+            //WebGlInstance.webGL.gl.uniformMatrix3fv(WebGlInstance.webGL.program.normalMatrix, false, models[i].normalMatrix);
 
             // Setzt das für das Modell gültige Material
             WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.webGL.program.materialKaUniform, models[i].material.ka);
@@ -502,30 +505,12 @@ var app = (function () {
 
         // Calculate normal matrix from ModelViewMmatrix.
         let mvMatrix = glMatrix.mat4.create();
-        glMatrix.mat4.multiply(mvMatrix, vMatrix, mMatrix);
-        glMatrix.mat3.normalFromMat4(model.normalMatrix, mvMatrix);
+        //glMatrix.mat4.multiply(mvMatrix, vMatrix, mMatrix);
+        glMatrix.mat4.multiply(mvMatrix, camera.vMatrix, mMatrix);
+        glMatrix.mat3.normalFromMat4(model.normalMatrix, glMatrix.mat4.invert(mvMatrix, mvMatrix));
 
-        for (var j = 0; j < WebGlInstance.sceneLight.light.length; j++) {
-            if (WebGlInstance.sceneLight.light[j].isOn) {
-                // bool is transferred as integer.
-                WebGlInstance.webGL.gl.uniform1i(WebGlInstance.sceneLightUniform[j].isOn, WebGlInstance.sceneLight.light[j].isOn);
-
-                // Tranform light postion in eye coordinates.
-                // Copy current light position into a new array.
-                let lightPos = [].concat(WebGlInstance.sceneLight.light[j].position);
-
-                // Add homogenious coordinate for transformation.
-                lightPos.push(1.0);
-                glMatrix.vec4.transformMat4(lightPos, lightPos, camera.vMatrix);
-
-                // Remove homogenious coordinate.
-                lightPos.pop();
-                //WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.sceneLightUniform[j].position, lightPos);
-                WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.sceneLightUniform[j].position, WebGlInstance.sceneLight.light[j].position);
-                WebGlInstance.webGL.gl.uniform3fv(WebGlInstance.sceneLightUniform[j].color, WebGlInstance.sceneLight.light[j].color);
-            }
-        }
-
+        // Setzen der Modelmatrix im Vertex Shader
+        //WebGlInstance.webGL.gl.uniformMatrix3fv(WebGlInstance.webGL.program.normalMatrix, true, model.normalMatrix);
         WebGlInstance.webGL.gl.uniformMatrix4fv(WebGlInstance.webGL.program.modelMatrix, false, mMatrix);
     }
 

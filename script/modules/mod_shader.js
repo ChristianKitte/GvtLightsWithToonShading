@@ -7,7 +7,9 @@ const vertexShader = `#version 300 es
     uniform mat4 uModel;
     uniform mat4 uView;
     uniform mat4 uProjection;
-  
+
+    uniform mat3 normalMatrix;
+
     in vec3 aPosition;
     in vec4 aColor;
     in vec3 aNormal;
@@ -40,36 +42,40 @@ const vertexShader = `#version 300 es
     };
     uniform PhongMaterial material;
     
-    // Phong illumination for single light source, no ambient light.
-    vec3 phong(vec3 p, vec3 n, vec3 v, LightSource l) {
+    // Phong Beleuchtungsberechnung für eine Lichtquellen
+    vec3 phong(vec3 p, vec3 n, vec3 v, LightSource l) {            
         vec3 L = l.color;
+        
     
-        vec3 s = normalize(l.position - p);
+        vec3 s = normalize(l.position-p);
         vec3 r = reflect(-s, n);
     
-        float sn = max( dot(s,n), 0.0);
+        float x =dot(s,n)*10.;
+        
+        //float sn = max( dot(s,n), 0.0);
+        float sn = max( x, 0.0);
         float rv = max( dot(r,v), 0.0);
     
         vec3 diffuse = material.kd * L * sn;
+        //vec3 diffuse = material.kd * L * sn;
     
         vec3 specular = material.ks * L * pow(rv, material.ke);
-    
+     
         return diffuse + specular;
-        //return vec3(1.0,0.,0.);
     }
     
-    // Phong illumination for multiple light sources
+    // Phong Beleuchtungsberechnung für mehrere Lichtquellen
     vec3 phong(vec3 p, vec3 n, vec3 v) {
-        // Calculate ambient light.
+        // Berechnet Einfluss des Ambienten Lichts mit Koeffizient ka
         vec3 result = material.ka * ambientLight;
     
-        // Add light from all light sources.
+        // Addiert die Einflüsse der weiteren Lichtquellen
         for(int j=0; j < MAX_LIGHT_SOURCES; j++){
             if(light[j].isOn){
                 result += phong(p, n, v, light[j]);
             }
         }
-    
+        
         return result;        
     }
 
@@ -82,19 +88,24 @@ const vertexShader = `#version 300 es
         gl_Position=uProjection * uView * uModel * vec4(aPosition, 100.0);
         gl_PointSize=1.0;  
         
+        //uNormalMatrix
+        mat4 mvMatrix=uView * uModel;
+        vec4 tPosition = mvMatrix * vec4(aPosition, 1.0);
+        vec3 tNormal = normalize(normalMatrix * aNormal);
+        
         //vec3 tNormal = normalize(uView * aNormal);
     
         // Calculate view vector.
-        //vec3 v = normalize(-gl_Position.xyz);
+        vec3 v = normalize(-tPosition.xyz);
         //vec3 tNormal = normalize(aNormal);
         //vec3 tPosition = normalize(gl_Position);
-        vec3 v = -normalize(vec3(0.,0.,0.));// -gl_Position.xyz;
+        //vec3 v = -normalize(vec3(0.,0.,0.));// -gl_Position.xyz;
         
-        //vColor = vec4( phong(tPosition, tNormal, v), 1.0);
-        vColor = vec4( phong(gl_Position.xyz, aNormal, v), 1.0);
+        vColor = vec4( phong(tPosition.xyz, tNormal, v), 1.0);
+        //vColor = vec4( phong(gl_Position.xyz, aNormal, v), 1.0);
         //vColor = vec4( phong(vec3(0.,0.,0.), aNormal, v), 1.0);
         //LightSource ls=light[0];
-        //vColor=vec4(ls.color,1.0);
+        //vColor=vec4(ambientLight,1.0);
     }
     
     `;

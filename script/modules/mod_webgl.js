@@ -25,14 +25,14 @@ var WebGlInstance = (function () {
         light: [
             {
                 isOn: true,
-                position: [6., 1., 3.],
+                position: [1., 0., -10.],
                 //position: [0., 0., 0.],
-                color: [1., 1., 0.]
+                color: [1.0, 0., 1.]
             }, {
                 isOn: true,
-                position: [6., 1., 3.],
+                position: [-6., 0., -10.],
                 //position: [0., 0., 0.],
-                color: [1., 1., 0.]
+                color: [1.0, 0., 0.]
             },]
     };
 
@@ -76,6 +76,9 @@ var WebGlInstance = (function () {
 
         // Zugriff auf uniform uProjection
         webGL.program.projectionMatrix = webGL.gl.getUniformLocation(webGL.program, "uProjection");
+
+        // Normal Matrix.
+        webGL.program.normalsMatrix = webGL.gl.getUniformLocation(webGL.program, "uNormalMatrix");
 
         // Zugriff auf uniform Umgebungslicht ambientLight
         webGL.program.ambientLightUniform = webGL.gl.getUniformLocation(webGL.program, "ambientLight");
